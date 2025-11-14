@@ -1,5 +1,5 @@
 # Clase-Django
-**Django (Python) — Framework web de alto nivel · Patrón MVT**
+**Django (Python) — Framework web de alto nivel**
 
 Este repositorio acompaña a la clase práctica para crear una **aplicación web funcional con Django**.
 
