@@ -4,8 +4,6 @@
 Este repositorio acompaña a la clase práctica para crear una **aplicación web funcional con Django**.
 
 
-> Todo lo necesario para reproducir la práctica está en este documento.
-
 ---
 
 ## Índice
@@ -37,8 +35,6 @@ Este repositorio acompaña a la clase práctica para crear una **aplicación web
 - **Pip** (gestor de paquetes de Python).
 - **Django** (se instalará en el entorno virtual).
 
-> Si el repositorio incluye `requirements.txt`, podrás instalar dependencias con `pip install -r requirements.txt`.
-
 ---
 
 ## Entorno virtual (recomendado)
@@ -65,8 +61,7 @@ Para **desactivar** el entorno: `deactivate`
 ---
 
 ## Inicialización del proyecto
-> Si el repositorio **ya incluye** un proyecto Django con `manage.py`, **salta** a [Ejecutar el servidor](#ejecutar-el-servidor-de-desarrollo).  
-> Si no, crea uno nuevo:
+
 
 ```bash
 # dentro del entorno virtual
@@ -108,22 +103,22 @@ clase_django/
 ---
 
 ## Añadir una app
-Crea tu primera app (p. ej., `blog`):
+Crea tu primera app (p. ej., `encuestas`):
 ```bash
-python manage.py startapp blog
+python manage.py startapp encuestas
 ```
 
 Añádela a `INSTALLED_APPS` en `clase_django/settings.py`:
 ```python
 INSTALLED_APPS = [
     # ...
-    'blog',
+    'encuestas',
 ]
 ```
 
 Estructura mínima de una app:
 ```
-blog/
+encuestas/
   __init__.py
   admin.py
   apps.py
@@ -135,7 +130,7 @@ blog/
   urls.py
 ```
 
-Crea `blog/urls.py` (no viene por defecto):
+Crea `encuestas/urls.py`:
 ```python
 from django.urls import path
 from . import views
@@ -168,8 +163,6 @@ def hello(request):
 ```
 
 Ve a `http://127.0.0.1:8000/hello/` y deberías ver el mensaje.
-
-> También puedes usar **Class-Based Views** (`from django.views import View`), pero para la práctica empezamos con funciones.
 
 ---
 
@@ -218,7 +211,6 @@ templates/
     index.html
 ```
 
-**`clase_django/settings.py`** (asegúrate de incluir la carpeta `templates`):
 ```python
 import os
 from pathlib import Path
@@ -241,7 +233,7 @@ TEMPLATES = [
 ]
 ```
 
-**`templates/base.html`** (layout base):
+**`templates/index.html`** :
 ```html
 <!doctype html>
 <html lang="es">
@@ -261,7 +253,7 @@ TEMPLATES = [
 </html>
 ```
 
-**`templates/blog/index.html`** (uso de variables y bucles):
+**`templates/encuestas/index.html`**:
 ```html
 {% extends "base.html" %}
 {% block title %}Listado de posts{% endblock %}
@@ -277,17 +269,17 @@ TEMPLATES = [
 {% endblock %}
 ```
 
-**Vista que usa la plantilla** (`blog/views.py`):
+**Vista que usa la plantilla** (`encuestas/views.py`):
 ```python
 from django.shortcuts import render
 from .models import Post
 
 def index(request):
     posts = Post.objects.order_by('-created_at')
-    return render(request, "blog/index.html", {"posts": posts})
+    return render(request, "encuestas/index.html", {"posts": posts})
 ```
 
-**Ruta para la vista index** (`blog/urls.py`):
+**Ruta para la vista index** (`encuestas/urls.py`):
 ```python
 from django.urls import path
 from . import views
@@ -298,94 +290,9 @@ urlpatterns = [
 ]
 ```
 
----
-
-## Archivos estáticos (CSS/JS/imagenes)
-En `settings.py` (suele venir por defecto):
-```python
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]  # opcional para carpeta global
-```
-
-Estructura sugerida:
-```
-static/
-  css/
-    styles.css
-```
-
-En plantillas:
-```html
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-```
-
-Para **producción**, recopila estáticos:
-```bash
-python manage.py collectstatic
-```
-
----
-
 ## Panel de administración
 - URL por defecto: `http://127.0.0.1:8000/admin/`
 - Usuario/contraseña: los creados con `createsuperuser`.
 - Registra tus modelos en `admin.py` para gestionarlos visualmente.
 
 ---
-
-## Ejecutar el servidor de desarrollo
-```bash
-python manage.py runserver
-# Servirá en http://127.0.0.1:8000/
-```
-
-- Cambia el puerto: `python manage.py runserver 8080`  
-- Parar: `Ctrl + C` en la terminal.
-
----
-
-## Patrón MVT en contexto
-- **Modelo (Model)**: datos y lógica asociada a la persistencia (`models.py`, ORM, migraciones).  
-- **Vista (View)**: lógica de respuesta a peticiones; prepara datos para la plantilla (`views.py`).  
-- **Template**: presentación (HTML + etiquetas/expresiones de Django) que renderiza datos del contexto.  
-- **Enrutamiento (urls.py)**: asigna URLs a vistas.  
-- **Controlador**: en Django se reparte entre el enrutador y las vistas que gestionan la petición.
-
----
-
-## Problemas comunes y soluciones
-- **`ModuleNotFoundError: No module named 'blog'`**  
-  No añadiste `'blog'` a `INSTALLED_APPS` o el nombre del paquete no coincide.
-
-- **`TemplateDoesNotExist`**  
-  Revisa la ruta (`templates/<app>/<file>.html`) y `TEMPLATES['DIRS']` en `settings.py`.
-
-- **`NoReverseMatch` / ruta 404**  
-  Comprueba los `name=` en `path()` y el `include()` en el `urls.py` del proyecto.
-
-- **Migraciones**  
-  Si cambias modelos: `makemigrations` + `migrate`. Borra migraciones sólo como último recurso.
-
-- **Archivos estáticos no cargan**  
-  Asegura `{% load static %}` y `STATIC_URL`. En producción, usa `collectstatic`.
-
-- **Admin sin acceso**  
-  Crea un superusuario con `createsuperuser` y verifica que el servidor está en marcha.
-
----
-
-## Checklist de evaluación / Rúbrica
-- **Entorno virtual** documentado (crear, activar, instalar Django).  
-- **Inicialización**: `startproject`, migraciones, superusuario.  
-- **Estructura y archivos clave** explicados (`manage.py`, `settings.py`, `urls.py`, `asgi.py`, `wsgi.py`).  
-- **App creada**: `startapp`, `INSTALLED_APPS`, `urls.py` de app y `include()` en proyecto.  
-- **Vistas/URLs/Templates** funcionando, con ejemplo renderizando una lista desde base de datos.  
-- **Panel admin** y **estáticos** con notas de uso.  
-- **Solución de problemas** con errores frecuentes.
-
----
-
-## Créditos y licencia
-- Basado en las diapositivas de **Django — Introducción (MVT)** y la práctica de clase.  
-- Uso educativo. Añade/consulta la licencia correspondiente a este repositorio.
